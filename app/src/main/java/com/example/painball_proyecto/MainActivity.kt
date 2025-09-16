@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     }
                 }
             }
-           layoutBotones.addView(botonSoltar)
+            layoutBotones.addView(botonSoltar)
 
             // boton salir (seguro)
             val botonSalir = Button(this).apply {
@@ -288,7 +288,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     envioServidor = true
                     thread {
                         try {
-                            val url = URL("http://192.168.80.2:6800/puntos?valor=$puntaje")
+                            val url = URL("http://192.168.0.18:6800/puntos?valor=$puntaje")
                             val conn = url.openConnection() as HttpURLConnection
                             conn.requestMethod = "GET"
                             conn.connect()
