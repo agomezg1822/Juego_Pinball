@@ -25,7 +25,7 @@ import java.net.URL
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
-
+    //holaaaa mundo
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     var envioServidor = false
