@@ -16,6 +16,20 @@ class LienzoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Avisar al servidor que inició el lienzo
+        Thread {
+            try {
+                val url = URL("http://192.168.0.24:6800/start_lienzo")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "GET"
+                conn.connect()
+                conn.disconnect()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }.start()
+
+        // --- Vista de lienzo ---
         val lienzoView = object : View(this) {
             private val paint = Paint().apply {
                 color = Color.BLACK
@@ -46,7 +60,7 @@ class LienzoActivity : AppCompatActivity() {
             }
         }
 
-        // Create a vertical LinearLayout to hold the lienzoView and buttons
+        // --- Layout principal ---
         val layout = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.VERTICAL
             layoutParams = android.widget.LinearLayout.LayoutParams(
@@ -55,7 +69,21 @@ class LienzoActivity : AppCompatActivity() {
             )
         }
 
-        // Add the lienzoView (weight=1 to fill space)
+        // Notificar al servidor que abra el lienzo en vivo en matplotlib
+        thread {
+            try {
+                val url = URL("http://192.168.0.24:6800/start_lienzo")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "GET"
+                conn.connect()
+                conn.inputStream.close()
+                conn.disconnect()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        // Agregar lienzo (ocupa todo el espacio arriba)
         val lienzoParams = android.widget.LinearLayout.LayoutParams(
             android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
             0,
@@ -63,14 +91,14 @@ class LienzoActivity : AppCompatActivity() {
         )
         layout.addView(lienzoView, lienzoParams)
 
-        // Add "Volver al menú anterior" button
+        // Botón "Volver al menú anterior"
         val volverBtn = android.widget.Button(this).apply {
             text = "Volver al menú anterior"
             setOnClickListener { finish() }
         }
         layout.addView(volverBtn)
 
-        // Add "Salir" button
+        // Botón "Salir"
         val salirBtn = android.widget.Button(this).apply {
             text = "Salir"
             setOnClickListener { finishAffinity() }
@@ -80,12 +108,10 @@ class LienzoActivity : AppCompatActivity() {
         setContentView(layout)
     }
 
-
-
     private fun enviarCoordenada(x: Float, y: Float) {
         thread {
             try {
-                val url = URL("http://192.168.0.18:6800/dibujo?x=$x&y=$y")
+                val url = URL("http://192.168.0.24:6800/dibujo?x=$x&y=$y")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
                 conn.connect()

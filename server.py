@@ -6,7 +6,6 @@ import numpy as np
 
 coords = []
 coords_lock = threading.Lock()
-
 app = Flask(__name__)
 
 @app.route("/puntos")
@@ -14,6 +13,12 @@ def puntos():
     print("¡Ganaste! alcanzaste los 20 puntos!!, 50 profe!")
     return "OK", 200
 
+@app.route("/start_lienzo")
+def start_lienzo():
+    print("🖌️ Iniciando lienzo en vivo...")
+    global start_drawing
+    start_drawing = True
+    return "OK", 200
 
 @app.route("/dibujo")
 def dibujo():
@@ -40,44 +45,48 @@ def live_plot():
     ani = animation.FuncAnimation(fig, update, interval=100)
     plt.show()
 
-
 @app.route("/estrella")
 def estrella():
-    print("✨ Iniciando animación de estrella...")
-
-    def plot_star():
-        fig, ax = plt.subplots()
-        ax.set_xlim(-2, 2)
-        ax.set_ylim(-2, 2)
-
-        # Coordenadas de una estrella de 5 puntas (10 vértices alternando radio)
-        theta = np.linspace(0, 2*np.pi, 11)
-        r = np.array([1, 0.4] * 5 + [1])
-        x = r * np.cos(theta)
-        y = r * np.sin(theta)
-        line, = ax.plot(x, y, 'g-')
-
-        def update(frame):
-            angle = np.radians(frame)
-            rot_x = x * np.cos(angle) - y * np.sin(angle)
-            rot_y = x * np.sin(angle) + y * np.cos(angle)
-            line.set_data(rot_x, rot_y)
-            return line,
-
-        ani = animation.FuncAnimation(fig, update, interval=50, blit=True)
-        plt.show()
-
-    threading.Thread(target=plot_star, daemon=True).start()
+    print("✨ Señal recibida para abrir estrella...")
+    global start_star
+    start_star = True
     return "OK", 200
 
+
 if __name__ == "__main__":
-    # Ejecutar Flask en hilo aparte para que matplotlib pueda correr en el hilo principal (necesario en macOS)
+    # Correr Flask en un hilo
     def run_flask():
         app.run(host="0.0.0.0", port=6800, debug=False, use_reloader=False)
 
-    flask_thread = threading.Thread(target=run_flask, daemon=True)
-    flask_thread.start()
+    threading.Thread(target=run_flask, daemon=True).start()
 
-    # Ejecutar la interfaz matplotlib en el hilo principal
-    live_plot()
-  
+    # Mantener vivo el loop principal para Matplotlib
+    while True:
+        if 'start_drawing' in globals() and start_drawing:
+            live_plot()
+            start_drawing = False
+
+        if 'start_star' in globals() and start_star:
+            def plot_star():
+                fig, ax = plt.subplots()
+                ax.set_xlim(-2, 2)
+                ax.set_ylim(-2, 2)
+
+                theta = np.linspace(0, 2*np.pi, 11)
+                r = np.array([1, 0.4] * 5 + [1])
+                x = r * np.cos(theta)
+                y = r * np.sin(theta)
+                line, = ax.plot(x, y, 'g-')
+
+                def update(frame):
+                    angle = -np.radians(frame)
+                    rot_x = x * np.cos(angle) - y * np.sin(angle)
+                    rot_y = x * np.sin(angle) + y * np.cos(angle)
+                    line.set_data(rot_x, rot_y)
+                    return line,
+
+                ani = animation.FuncAnimation(fig, update, frames=360, interval=50, blit=True)
+                plt.show()
+
+            plot_star()
+            start_star = False

@@ -30,18 +30,6 @@ class MainMenuActivity : AppCompatActivity() {
             text = "Lienzo en blanco"
             setOnClickListener {
                 startActivity(Intent(this@MainMenuActivity, LienzoActivity::class.java))
-                // Notificar al servidor Python que se abrió el lienzo
-                Thread {
-                    try {
-                        val url = java.net.URL("http://192.168.0.18:6800/start_lienzo")
-                        val conn = url.openConnection() as java.net.HttpURLConnection
-                        conn.requestMethod = "GET"
-                        conn.connect()
-                        conn.disconnect()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }.start()
             }
         }
         layout.addView(botonLienzo)
@@ -50,13 +38,14 @@ class MainMenuActivity : AppCompatActivity() {
         val botonEstrella = Button(this).apply {
             text = "Ver estrella en PC"
             setOnClickListener {
-                // mandar petición al servidor Python para que inicie
                 Thread {
                     try {
-                        val url = java.net.URL("http://192.168.0.18:6800/start_star")
+                        val url = java.net.URL("http://192.168.0.24:6800/estrella")
                         val conn = url.openConnection() as java.net.HttpURLConnection
                         conn.requestMethod = "GET"
                         conn.connect()
+                        // read/close the input stream to complete the request
+                        conn.inputStream.close()
                         conn.disconnect()
                     } catch (e: Exception) {
                         e.printStackTrace()

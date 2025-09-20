@@ -25,7 +25,6 @@ import java.net.URL
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
-    //holaaaa mundo
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     var envioServidor = false
@@ -94,6 +93,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 }
             }
             layoutBotones.addView(botonSoltar)
+
+            // Botón "Volver al menú anterior"
+            val volverBtn = android.widget.Button(this).apply {
+                text = "Volver al menú anterior"
+                setOnClickListener { finish() }
+            }
+            layoutBotones.addView(volverBtn)
 
             // boton salir (seguro)
             val botonSalir = Button(this).apply {
@@ -288,7 +294,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     envioServidor = true
                     thread {
                         try {
-                            val url = URL("http://192.168.0.18:6800/puntos?valor=$puntaje")
+                            val url = URL("http://192.168.0.24:6800/puntos?valor=$puntaje")
                             val conn = url.openConnection() as HttpURLConnection
                             conn.requestMethod = "GET"
                             conn.connect()
