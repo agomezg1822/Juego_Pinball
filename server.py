@@ -15,7 +15,7 @@ def puntos():
 
 @app.route("/start_lienzo")
 def start_lienzo():
-    print("🖌️ Iniciando lienzo en vivo...")
+    print("Iniciando lienzo en vivo...")
     global start_drawing
     start_drawing = True
     return "OK", 200
@@ -47,7 +47,7 @@ def live_plot():
 
 @app.route("/estrella")
 def estrella():
-    print("✨ Señal recibida para abrir estrella...")
+    print("Señal recibida para abrir estrella...")
     global start_star
     start_star = True
     return "OK", 200
